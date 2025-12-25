@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 
 INSERT IGNORE INTO `users` (`username`, `password`, `role`) VALUES
-('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('admin', '$2y$12$eLy.7EVUAW2Dtt/b25btd.iTrt0lNxWMKKPYhTsw5blT6bGN0x.uu', 'admin');
 
 -- --------------------------------------------------------
 
