@@ -60,11 +60,13 @@ CREATE TABLE IF NOT EXISTS `items` (
   `stock` int(11) NOT NULL DEFAULT 0,
   `low_stock_alert` int(11) NOT NULL DEFAULT 10,
   `description` text DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `section` (`section`),
-  KEY `category` (`category`)
+  KEY `category` (`category`),
+  KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
