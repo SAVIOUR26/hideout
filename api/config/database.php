@@ -5,11 +5,22 @@
  */
 
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'hgm_pos';
-    private $username = 'hgm_user';
-    private $password = '';
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
+
+    /**
+     * Constructor - Load credentials from config.php if available
+     */
+    public function __construct() {
+        // Use constants from config.php if defined, otherwise use defaults
+        $this->host = defined('DB_HOST') ? DB_HOST : 'localhost';
+        $this->db_name = defined('DB_NAME') ? DB_NAME : 'hgm_pos';
+        $this->username = defined('DB_USER') ? DB_USER : 'hgm_user';
+        $this->password = defined('DB_PASS') ? DB_PASS : '';
+    }
 
     /**
      * Get database connection
