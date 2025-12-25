@@ -2,13 +2,22 @@
 -- HGM POS System - MySQL Database Schema
 -- Version: 2.0.0-PWA
 -- Created: 2024-12-24
+-- Updated for Shared Hosting: 2025-12-25
+--
+-- SHARED HOSTING INSTRUCTIONS:
+-- 1. Create database via DirectAdmin/cPanel MySQL Management
+-- 2. Select the database in phpMyAdmin
+-- 3. Import this file (no need to edit - works with any database name)
+-- 4. All tables will be created with IF NOT EXISTS (safe to re-run)
 --
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
+SET FOREIGN_KEY_CHECKS = 0;
 
 --
--- Database: `hgm_pos`
+-- Note: This script works with any database name
+-- No database selection needed - import after selecting your database
 --
 
 -- --------------------------------------------------------
@@ -30,9 +39,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 -- Dumping data for table `users`
 -- Default admin user: username=admin, password=admin123
+-- Using INSERT IGNORE to prevent duplicate key errors on re-import
 --
 
-INSERT INTO `users` (`username`, `password`, `role`) VALUES
+INSERT IGNORE INTO `users` (`username`, `password`, `role`) VALUES
 ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
 -- --------------------------------------------------------
@@ -59,9 +69,10 @@ CREATE TABLE IF NOT EXISTS `items` (
 
 --
 -- Dumping sample data for table `items`
+-- Using INSERT IGNORE to prevent duplicate entries on re-import
 --
 
-INSERT INTO `items` (`name`, `category`, `section`, `price`, `stock`, `low_stock_alert`, `description`) VALUES
+INSERT IGNORE INTO `items` (`name`, `category`, `section`, `price`, `stock`, `low_stock_alert`, `description`) VALUES
 ('Tusker Lager', 'Beer', 'bar', 3500.00, 100, 20, '500ml bottle'),
 ('Bell Lager', 'Beer', 'bar', 3500.00, 100, 20, '500ml bottle'),
 ('Coca Cola', 'Soft Drinks', 'bar', 2000.00, 150, 30, '500ml bottle'),
@@ -134,9 +145,10 @@ CREATE TABLE IF NOT EXISTS `business_settings` (
 
 --
 -- Dumping data for table `business_settings`
+-- Using INSERT IGNORE to prevent duplicate entries on re-import
 --
 
-INSERT INTO `business_settings` (`id`, `business_name`, `phone`, `email`, `address`, `footer_message`) VALUES
+INSERT IGNORE INTO `business_settings` (`id`, `business_name`, `phone`, `email`, `address`, `footer_message`) VALUES
 (1, 'HGM Properties Ltd', '+256-XXX-XXXXXX', 'info@hgmproperties.com', 'Kampala, Uganda', 'Thank you for your business!\nPlease visit us again');
 
 -- --------------------------------------------------------
@@ -145,10 +157,20 @@ INSERT INTO `business_settings` (`id`, `business_name`, `phone`, `email`, `addre
 -- Indexes and Auto Increment values
 --
 
+-- Set AUTO_INCREMENT values (optional - will auto-adjust)
 ALTER TABLE `users` AUTO_INCREMENT = 2;
 ALTER TABLE `items` AUTO_INCREMENT = 11;
 ALTER TABLE `transactions` AUTO_INCREMENT = 1;
 ALTER TABLE `transaction_items` AUTO_INCREMENT = 1;
 ALTER TABLE `business_settings` AUTO_INCREMENT = 2;
 
+-- Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS = 1;
+
 COMMIT;
+
+--
+-- Import complete!
+-- Default credentials: admin / admin123
+-- REMEMBER TO CHANGE PASSWORD AFTER FIRST LOGIN
+--

@@ -1,0 +1,112 @@
+name: Deploy to Shared Hosting
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:  # Allow manual deployment
+
+jobs:
+  deploy:
+    name: Deploy HGM POS to hideout.ocone.site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: pdo, pdo_mysql
+
+      - name: Create deployment package
+        run: |
+          echo "Creating deployment package..."
+          mkdir -p deploy
+
+          # Copy all files except git, docs, and workflow files
+          rsync -av --exclude='.git' \
+                    --exclude='.github' \
+                    --exclude='node_modules' \
+                    --exclude='deploy' \
+                    --exclude='*.md' \
+                    --exclude='README.txt' \
+                    --exclude='UPLOAD_INSTRUCTIONS.txt' \
+                    --exclude='FTP_UPLOAD_MAP.txt' \
+                    --exclude='database.sql' \
+                    ./ deploy/
+
+          echo "Deployment package created successfully"
+          ls -la deploy/
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./deploy/
+          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/*.md
+            **/database.sql
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed!"
+          echo "Site URL: https://hideout.ocone.site"
+          echo "API Health Check: https://hideout.ocone.site/api/health"
+
+      - name: Database deployment instructions
+        run: |
+          echo "⚠️ DATABASE IMPORT REQUIRED ⚠️"
+          echo ""
+          echo "The files have been deployed, but you need to import the database manually:"
+          echo ""
+          echo "Option 1: Using GitHub Actions (Automated)"
+          echo "  - Add database credentials to GitHub Secrets"
+          echo "  - Enable the database import job below"
+          echo ""
+          echo "Option 2: Using phpMyAdmin (Manual)"
+          echo "  1. Login to DirectAdmin/cPanel"
+          echo "  2. Open phpMyAdmin"
+          echo "  3. Select database: ${{ secrets.DB_NAME || 'elibrary_hideout' }}"
+          echo "  4. Click Import tab"
+          echo "  5. Upload database.sql file"
+          echo "  6. Click Go"
+          echo ""
+          echo "Default credentials: admin / admin123"
+          echo "🔒 CHANGE PASSWORD AFTER FIRST LOGIN!"
+
+  # Optional: Automated database import (requires additional secrets)
+  # Uncomment this job and add DB_HOST, DB_NAME, DB_USER, DB_PASS secrets
+  # database-import:
+  #   name: Import Database (Optional)
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   if: github.event_name == 'workflow_dispatch'  # Only run on manual trigger
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Import database via SSH/MySQL
+  #       run: |
+  #         # Install MySQL client
+  #         sudo apt-get update
+  #         sudo apt-get install -y mysql-client
+  #
+  #         # Import database
+  #         mysql -h ${{ secrets.DB_HOST }} \
+  #               -u ${{ secrets.DB_USER }} \
+  #               -p${{ secrets.DB_PASS }} \
+  #               ${{ secrets.DB_NAME }} < database.sql
+  #
+  #         echo "Database imported successfully!"
