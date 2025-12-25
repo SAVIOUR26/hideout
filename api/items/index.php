@@ -17,16 +17,30 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        // Get all items or filtered by section
+        // Get all items or filtered by section/status
         $section = isset($_GET['section']) ? $_GET['section'] : null;
+        $status = isset($_GET['status']) ? $_GET['status'] : 'active'; // Default to active only
 
         if ($section && $section !== 'all') {
-            $query = "SELECT * FROM items WHERE section = :section ORDER BY name ASC";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(':section', $section);
+            if ($status === 'all') {
+                $query = "SELECT * FROM items WHERE section = :section ORDER BY name ASC";
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':section', $section);
+            } else {
+                $query = "SELECT * FROM items WHERE section = :section AND status = :status ORDER BY name ASC";
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':section', $section);
+                $stmt->bindParam(':status', $status);
+            }
         } else {
-            $query = "SELECT * FROM items ORDER BY section ASC, name ASC";
-            $stmt = $db->prepare($query);
+            if ($status === 'all') {
+                $query = "SELECT * FROM items ORDER BY section ASC, name ASC";
+                $stmt = $db->prepare($query);
+            } else {
+                $query = "SELECT * FROM items WHERE status = :status ORDER BY section ASC, name ASC";
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':status', $status);
+            }
         }
 
         $stmt->execute();
@@ -51,8 +65,11 @@ switch ($method) {
             exit();
         }
 
-        $query = "INSERT INTO items (name, category, section, price, stock, low_stock_alert, description)
-                  VALUES (:name, :category, :section, :price, :stock, :low_stock_alert, :description)";
+        // Set default status if not provided
+        $status = isset($data->status) ? $data->status : 'active';
+
+        $query = "INSERT INTO items (name, category, section, price, stock, low_stock_alert, description, status)
+                  VALUES (:name, :category, :section, :price, :stock, :low_stock_alert, :description, :status)";
 
         $stmt = $db->prepare($query);
         $stmt->bindParam(':name', $data->name);
@@ -62,6 +79,7 @@ switch ($method) {
         $stmt->bindParam(':stock', $data->stock);
         $stmt->bindParam(':low_stock_alert', $data->low_stock_alert);
         $stmt->bindParam(':description', $data->description);
+        $stmt->bindParam(':status', $status);
 
         if ($stmt->execute()) {
             echo json_encode(array(
@@ -99,6 +117,7 @@ switch ($method) {
                   stock = :stock,
                   low_stock_alert = :low_stock_alert,
                   description = :description,
+                  status = :status,
                   updated_at = CURRENT_TIMESTAMP
                   WHERE id = :id";
 
@@ -111,6 +130,7 @@ switch ($method) {
         $stmt->bindParam(':stock', $data->stock);
         $stmt->bindParam(':low_stock_alert', $data->low_stock_alert);
         $stmt->bindParam(':description', $data->description);
+        $stmt->bindParam(':status', $data->status);
 
         if ($stmt->execute()) {
             echo json_encode(array("success" => true, "message" => "Item updated successfully"));

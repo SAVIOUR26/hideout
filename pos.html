@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HGM POS - Point of Sale</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            height: 100vh;
+        }
+
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #ecf0f1;
+            color: #7f8c8d;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            opacity: 0.8;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .product-card {
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .product-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            color: #27ae60;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .product-stock {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .cart-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-items {
+            flex: 1;
+            max-height: calc(100vh - 450px);
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-price {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .qty-btn:hover {
+            background: #2980b9;
+        }
+
+        .qty-display {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .cart-total {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .total-label {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .total-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        select, input {
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .checkout-btn {
+            padding: 16px;
+            border: none;
+            background: #27ae60;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: #229954;
+        }
+
+        .checkout-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            padding: 12px;
+            border: 2px solid #e74c3c;
+            background: white;
+            color: #e74c3c;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px;
+            color: #95a5a6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            border: none;
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Products Section -->
+        <div class="section">
+            <div class="header">
+                <h1>🛒 Products</h1>
+                <div class="user-info">
+                    <span id="user-name">Loading...</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="section-tabs">
+                <button class="tab-btn active" data-section="bar" onclick="switchSection('bar')">🍺 Bar</button>
+                <button class="tab-btn" data-section="restaurant" onclick="switchSection('restaurant')">🍽️ Restaurant</button>
+                <button class="tab-btn" data-section="lodge" onclick="switchSection('lodge')">🏨 Lodge</button>
+            </div>
+
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Cart Section -->
+        <div class="section cart-section">
+            <div class="header">
+                <h1>🛍️ Cart</h1>
+                <button class="clear-btn" onclick="clearCart()">Clear All</button>
+            </div>
+
+            <div class="cart-items" id="cart-items">
+                <div class="empty-cart">Cart is empty. Add products to start.</div>
+            </div>
+
+            <div class="cart-total">
+                <div class="total-label">Total Amount</div>
+                <div class="total-amount" id="cart-total">UGX 0</div>
+            </div>
+
+            <form class="checkout-form" onsubmit="checkout(event)">
+                <div class="form-group">
+                    <label for="payment-method">Payment Method *</label>
+                    <select id="payment-method" name="payment_method" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="cash">💵 CASH</option>
+                        <option value="mobile_money">📱 MERCHANT (Mobile Money)</option>
+                        <option value="card">💳 CARD (Terminal)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customer-name">Customer Name (Optional)</label>
+                    <input type="text" id="customer-name" name="customer_name" placeholder="Enter customer name">
+                </div>
+
+                <button type="submit" class="checkout-btn" id="checkout-btn" disabled>
+                    Complete Sale
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentUser = null;
+        let currentSection = 'bar';
+        let products = [];
+        let cart = [];
+
+        // Load user and initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                // Decode JWT to get user info
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUser = payload;
+                document.getElementById('user-name').textContent = `👤 ${currentUser.username} (${currentUser.role})`;
+
+                // Load products
+                await loadProducts();
+
+            } catch (error) {
+                console.error('Init error:', error);
+                logout();
+            }
+        });
+
+        // Load products
+        async function loadProducts() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/items?section=${currentSection}&status=active`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load products');
+                }
+
+                products = await response.json();
+                renderProducts();
+
+            } catch (error) {
+                console.error('Load products error:', error);
+                alert('Error loading products: ' + error.message);
+            }
+        }
+
+        // Render products
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="empty-cart">No active products in this section.</div>';
+                return;
+            }
+
+            grid.innerHTML = products.map(product => `
+                <div class="product-card" onclick="addToCart(${product.id})">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">UGX ${formatMoney(product.price)}</div>
+                    <div class="product-stock">
+                        ${product.stock > 0
+                            ? `<span class="status-badge badge-success">Stock: ${product.stock}</span>`
+                            : `<span class="status-badge badge-warning">Out of Stock</span>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Switch section
+        function switchSection(section) {
+            currentSection = section;
+
+            // Update active tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.section === section);
+            });
+
+            loadProducts();
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+
+            if (!product) return;
+
+            if (product.stock <= 0) {
+                alert('This item is out of stock!');
+                return;
+            }
+
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                if (existingItem.quantity >= product.stock) {
+                    alert('Cannot add more. Stock limit reached!');
+                    return;
+                }
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    maxStock: product.stock
+                });
+            }
+
+            renderCart();
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(i => i.id === productId);
+
+            if (!item) return;
+
+            item.quantity += change;
+
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            } else if (item.quantity > item.maxStock) {
+                item.quantity = item.maxStock;
+                alert('Cannot exceed available stock!');
+            }
+
+            renderCart();
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            renderCart();
+        }
+
+        // Render cart
+        function renderCart() {
+            const cartDiv = document.getElementById('cart-items');
+            const totalDiv = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            if (cart.length === 0) {
+                cartDiv.innerHTML = '<div class="empty-cart">Cart is empty. Add products to start.</div>';
+                totalDiv.textContent = 'UGX 0';
+                checkoutBtn.disabled = true;
+                return;
+            }
+
+            // Calculate total
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Render cart items
+            cartDiv.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">UGX ${formatMoney(item.price)} × ${item.quantity} = UGX ${formatMoney(item.price * item.quantity)}</div>
+                    </div>
+                    <div class="cart-item-controls">
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
+                        <span class="qty-display">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                        <button class="remove-btn" onclick="removeFromCart(${item.id})">✕</button>
+                    </div>
+                </div>
+            `).join('');
+
+            totalDiv.textContent = `UGX ${formatMoney(total)}`;
+            checkoutBtn.disabled = false;
+        }
+
+        // Clear cart
+        function clearCart() {
+            if (cart.length === 0) return;
+
+            if (confirm('Clear all items from cart?')) {
+                cart = [];
+                renderCart();
+            }
+        }
+
+        // Checkout
+        async function checkout(event) {
+            event.preventDefault();
+
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+
+            const paymentMethod = document.getElementById('payment-method').value;
+            const customerName = document.getElementById('customer-name').value;
+
+            if (!paymentMethod) {
+                alert('Please select a payment method!');
+                return;
+            }
+
+            const checkoutBtn = document.getElementById('checkout-btn');
+            checkoutBtn.disabled = true;
+            checkoutBtn.textContent = 'Processing...';
+
+            try {
+                const token = localStorage.getItem('token');
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+                const transactionData = {
+                    cashier_id: currentUser.userId,
+                    total: total,
+                    payment_method: paymentMethod,
+                    section: currentSection,
+                    customer_name: customerName || null,
+                    items: cart.map(item => ({
+                        item_id: item.id,
+                        quantity: item.quantity,
+                        price: item.price,
+                        total: item.price * item.quantity
+                    }))
+                };
+
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Transaction failed');
+                }
+
+                // Success! Open print preview
+                window.open(
+                    `/print-preview.html?id=${result.transaction_id}`,
+                    '_blank',
+                    'width=800,height=900'
+                );
+
+                // Clear cart and reset
+                cart = [];
+                renderCart();
+                document.getElementById('customer-name').value = '';
+                document.getElementById('payment-method').value = '';
+
+                // Reload products (stock updated)
+                await loadProducts();
+
+                alert('✅ Sale completed successfully!');
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Error completing sale: ' + error.message);
+            } finally {
+                checkoutBtn.disabled = false;
+                checkoutBtn.textContent = 'Complete Sale';
+            }
+        }
+
+        // Format money
+        function formatMoney(amount) {
+            return Math.round(amount).toLocaleString();
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
