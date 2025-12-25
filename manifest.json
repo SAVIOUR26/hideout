@@ -1,0 +1,44 @@
+{
+  "name": "HGM POS System",
+  "short_name": "HGM POS",
+  "description": "Point of Sale system for HGM Properties Ltd - Bar, Restaurant & Lodge Management",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "landscape-primary",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "finance"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Sale",
+      "short_name": "Sell",
+      "description": "Start a new sale transaction",
+      "url": "/?action=new-sale",
+      "icons": [{
+        "src": "/icon.png",
+        "sizes": "96x96"
+      }]
+    },
+    {
+      "name": "Admin Panel",
+      "short_name": "Admin",
+      "description": "Access admin panel",
+      "url": "/admin",
+      "icons": [{
+        "src": "/icon.png",
+        "sizes": "96x96"
+      }]
+    }
+  ],
+  "prefer_related_applications": false
+}

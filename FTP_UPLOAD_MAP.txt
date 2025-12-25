@@ -1,0 +1,96 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║                    FTP UPLOAD MAPPING GUIDE                      ║
+║                Simple Visual Upload Reference                    ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📂 WHAT TO UPLOAD WHERE
+
+Connect to FTP: wh175143.ispot.cc
+Navigate to: /home/elibrary/domains/hideout.wh175143.ispot.cc/public_html/
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FROM YOUR "hideout" FOLDER          →    TO SERVER "public_html"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FOLDERS:
+--------
+hideout/api/                        →    public_html/api/
+hideout/assets/                     →    public_html/assets/
+
+
+FILES:
+------
+hideout/.htaccess                   →    public_html/.htaccess
+hideout/index.html                  →    public_html/index.html
+hideout/manifest.json               →    public_html/manifest.json
+hideout/sw.js                       →    public_html/sw.js
+hideout/icon.png                    →    public_html/icon.png
+hideout/icon-512.png                →    public_html/icon-512.png
+hideout/icon-1024.png               →    public_html/icon-1024.png
+
+
+DATABASE:
+---------
+hideout/database.sql                →    Import via phpMyAdmin
+                                         (DO NOT upload via FTP!)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FINAL SERVER STRUCTURE:
+
+public_html/
+│
+├── .htaccess                       ← Apache config
+├── index.html                      ← Main entry point
+├── manifest.json                   ← PWA manifest
+├── sw.js                           ← Service Worker
+├── icon.png                        ← App icon
+├── icon-512.png                    ← App icon (512px)
+├── icon-1024.png                   ← App icon (1024px)
+│
+├── api/                            ← Backend PHP API
+│   ├── .htaccess
+│   ├── index.php
+│   ├── auth/
+│   ├── config/
+│   ├── items/
+│   ├── receipt/
+│   ├── reports/
+│   ├── settings/
+│   ├── transactions/
+│   └── users/
+│
+└── assets/                         ← Frontend bundles
+    ├── index-BvrwU59C.css          ← Styles (4.4 KB)
+    └── index-C8Gnj3qQ.js           ← JavaScript (262 KB)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SIMPLE UPLOAD METHOD (Recommended):
+
+1. Select ALL files and folders in "hideout" folder
+   (EXCEPT database.sql)
+
+2. Drag and drop to public_html/ in your FTP client
+
+3. Wait for upload to complete
+
+4. Configure database (rename config.example.php → config.php)
+
+5. Import database.sql via phpMyAdmin
+
+DONE! ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Total Files to Upload: 22 files + 2 folders
+Upload Time: 2-3 minutes (depending on connection speed)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

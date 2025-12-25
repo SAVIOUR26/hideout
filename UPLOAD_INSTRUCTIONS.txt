@@ -1,0 +1,280 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║           HGM POS SYSTEM - DIRECTADMIN DEPLOYMENT                ║
+║                   CLEAN DEPLOYMENT PACKAGE                       ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📦 THIS FOLDER CONTAINS ONLY THE FILES YOU NEED TO UPLOAD
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📂 FOLDER STRUCTURE (Ready for Upload)
+
+hideout/
+├── api/                    ← Backend PHP API
+├── assets/                 ← Frontend CSS & JS bundles
+├── .htaccess              ← Apache configuration
+├── index.html             ← Main entry point
+├── manifest.json          ← PWA manifest
+├── sw.js                  ← Service Worker
+├── icon.png               ← App icon (default)
+├── icon-512.png           ← App icon (512px)
+├── icon-1024.png          ← App icon (1024px)
+└── database.sql           ← MySQL database schema
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 DEPLOYMENT STEPS (5 Minutes)
+
+STEP 1: UPLOAD VIA FTP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FTP Connection Details:
+   Server: wh175143.ispot.cc
+   Username: hideout@wh175143.ispot.cc
+   Password: Hide@25
+   Port: 21
+   Path: /home/elibrary/domains/hideout.wh175143.ispot.cc/public_html/
+
+Upload Instructions:
+   1. Connect to FTP using FileZilla, WinSCP, or any FTP client
+   2. Navigate to: /home/elibrary/domains/hideout.wh175143.ispot.cc/public_html/
+   3. Upload ALL files and folders from this "hideout" folder directly to public_html/
+
+   Final structure on server:
+   public_html/
+   ├── api/                (upload entire folder)
+   ├── assets/             (upload entire folder)
+   ├── .htaccess          (upload file)
+   ├── index.html         (upload file)
+   ├── manifest.json      (upload file)
+   ├── sw.js              (upload file)
+   ├── icon.png           (upload file)
+   ├── icon-512.png       (upload file)
+   └── icon-1024.png      (upload file)
+
+   ⚠️ DO NOT upload database.sql via FTP - see Step 3
+
+
+STEP 2: CONFIGURE DATABASE CONNECTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After uploading files:
+
+   1. Using FTP or DirectAdmin File Manager, navigate to:
+      public_html/api/config/
+
+   2. Rename file:
+      config.example.php  →  config.php
+
+   3. Edit config.php with these values:
+
+      define('DB_HOST', 'localhost');
+      define('DB_NAME', 'elibrary_hideout');
+      define('DB_USER', 'elibrary_hideout');
+      define('DB_PASS', 'Hide@2025');
+
+   4. Save the file
+
+
+STEP 3: IMPORT DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   1. Login to DirectAdmin
+   2. Navigate to: phpMyAdmin
+   3. Select database: elibrary_hideout
+   4. Click "Import" tab at the top
+   5. Click "Choose File" button
+   6. Select: database.sql (from this hideout folder on your computer)
+   7. Click "Go" button at the bottom
+   8. Wait for "Import has been successfully finished" message
+
+
+STEP 4: TEST YOUR SITE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   1. Open browser and visit:
+      https://hideout.wh175143.ispot.cc
+
+   2. You should see the login page
+
+   3. Login with default credentials:
+      Username: admin
+      Password: admin123
+
+   4. ⚠️ IMMEDIATELY CHANGE PASSWORD!
+      Click on "My Profile" → "Change Password"
+
+
+STEP 5: POST-DEPLOYMENT SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   1. Update Business Settings:
+      Admin Panel → Settings → Business Settings
+      - Business Name
+      - Phone Number
+      - Email Address
+      - Physical Address
+      - Receipt Footer Message
+
+   2. Add Your Products:
+      Admin Panel → Items → Add New Item
+      - Add items for Bar section
+      - Add items for Restaurant section
+      - Add items for Lodge section
+
+   3. Create Cashier Accounts:
+      Admin Panel → Users → Add New User
+
+   4. Configure Thermal Printer:
+      - Install printer driver on POS computer
+      - Set thermal printer as Windows default
+      - Test print from POS system
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FILE CHECKLIST
+
+Before uploading, verify you have these files:
+
+Frontend Files (Upload to public_html root):
+   [ ] .htaccess
+   [ ] index.html
+   [ ] manifest.json
+   [ ] sw.js
+   [ ] icon.png
+   [ ] icon-512.png
+   [ ] icon-1024.png
+   [ ] assets/ folder (contains 2 files: CSS + JS)
+
+Backend Files (Upload to public_html/api/):
+   [ ] api/.htaccess
+   [ ] api/index.php
+   [ ] api/auth/ folder
+   [ ] api/config/ folder
+   [ ] api/items/ folder
+   [ ] api/receipt/ folder
+   [ ] api/reports/ folder
+   [ ] api/settings/ folder
+   [ ] api/transactions/ folder
+   [ ] api/users/ folder
+
+Database (Import via phpMyAdmin):
+   [ ] database.sql
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🖨️ THERMAL PRINTER SETUP
+
+Supported Printers:
+   • XPRINTER (all models)
+   • Epson TM-T20/T82/T88
+   • Star TSP100/TSP143
+   • Any ESC/POS 80mm thermal printer
+
+Setup:
+   1. Install printer driver on Windows
+   2. Set as default printer
+   3. Open HGM POS in Chrome/Edge
+   4. Complete a test sale
+   5. Browser asks for printer (first time)
+   6. Select thermal printer
+   7. Future receipts auto-print!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 INSTALL AS PWA (Progressive Web App)
+
+Desktop (Windows/Mac):
+   1. Open site in Chrome/Edge
+   2. Look for install icon in address bar
+   3. Click "Install HGM POS"
+   4. App opens in standalone window
+
+Mobile (iPhone/Android):
+   1. Open site in Safari (iOS) or Chrome (Android)
+   2. Tap Share button
+   3. Select "Add to Home Screen"
+   4. Icon appears on home screen
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING
+
+Site not loading?
+   → Check .htaccess is in public_html root
+   → Verify index.html is in public_html root
+   → Check file permissions (644 for files, 755 for folders)
+
+Login fails?
+   → Verify database.sql imported successfully
+   → Check api/config/config.php has correct credentials
+   → Test: https://hideout.wh175143.ispot.cc/api/health
+
+Printing not working?
+   → Set thermal printer as Windows default printer
+   → Allow browser popup windows
+   → Test with Ctrl+P first
+
+PWA won't install?
+   → Site must use HTTPS (already enabled)
+   → Clear browser cache
+   → Try different browser
+
+Internal Server Error (500)?
+   → Check .htaccess uploaded correctly
+   → Verify PHP version is 7.4+ in DirectAdmin
+   → Check error logs in DirectAdmin
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ FEATURES READY TO USE
+
+✅ Multi-section POS (Bar, Restaurant, Lodge)
+✅ Real-time cart and checkout
+✅ Item search and filtering
+✅ Stock management
+✅ Payment processing (Cash, Card, Mobile Money)
+✅ 80mm thermal receipt printing
+✅ Admin panel (Items, Users, Settings, Reports)
+✅ User management with roles (Admin/Cashier)
+✅ Business settings configuration
+✅ Change password feature
+✅ Sales reports and analytics
+✅ Mobile responsive (tablets & phones)
+✅ PWA installation support
+✅ Offline capability
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 SECURITY REMINDERS
+
+1. Change default admin password immediately after first login
+2. Use strong passwords for all user accounts
+3. Don't share admin credentials with cashiers
+4. Regularly backup your database via DirectAdmin
+5. Keep business settings up to date
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 PACKAGE INFO
+
+Total Files: 23 files
+Total Size: ~520 KB (optimized)
+Deployment Time: 5-10 minutes
+PHP Version Required: 7.4+
+MySQL Version Required: 5.7+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ READY FOR PRODUCTION DEPLOYMENT
+
+Version: 2.0.0-PWA
+Build Date: December 24, 2024
+Status: PRODUCTION-READY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 Upload these files and go live in minutes!
