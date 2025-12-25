@@ -5,7 +5,17 @@
  */
 
 class JWT {
-    private static $secret_key = "HGM_POS_SECRET_2024_CHANGE_THIS_IN_PRODUCTION";
+    /**
+     * Get secret key from config
+     */
+    private static function getSecretKey() {
+        if (defined('JWT_SECRET')) {
+            return JWT_SECRET;
+        }
+        // Fallback if config not loaded (should never happen)
+        error_log("WARNING: JWT_SECRET not defined, using fallback");
+        return "FALLBACK_SECRET_CHANGE_THIS_IMMEDIATELY";
+    }
 
     /**
      * Generate JWT token
@@ -17,7 +27,7 @@ class JWT {
         $base64UrlHeader = self::base64UrlEncode($header);
         $base64UrlPayload = self::base64UrlEncode($payload);
 
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::$secret_key, true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::getSecretKey(), true);
         $base64UrlSignature = self::base64UrlEncode($signature);
 
         return $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
@@ -40,7 +50,7 @@ class JWT {
         // Verify signature
         $base64UrlHeader = self::base64UrlEncode($header);
         $base64UrlPayload = self::base64UrlEncode($payload);
-        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::$secret_key, true);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::getSecretKey(), true);
         $base64UrlSignature = self::base64UrlEncode($signature);
 
         if ($base64UrlSignature !== $signatureProvided) {
