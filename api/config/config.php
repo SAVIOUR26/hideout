@@ -12,8 +12,9 @@ define('DB_NAME', 'elibrary_hideout');
 define('DB_USER', 'elibrary_hideout');
 define('DB_PASS', 'Hide@2025');
 
-// JWT Secret Key (Randomly generated for security)
-define('JWT_SECRET', 'hgm_pos_secret_key_' . md5('hideout.ocone.site' . time()));
+// JWT Secret Key (Strong random secret - DO NOT CHANGE after deployment)
+// This must remain constant or all tokens will be invalidated
+define('JWT_SECRET', 'hgm_pos_hideout_secret_' . md5('hideout.ocone.site_2025_production_key_static'));
 
 // Application Settings
 define('APP_NAME', 'HGM POS System');
