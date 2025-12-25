@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `business_settings` (
   `phone` varchar(50) DEFAULT '+256-XXX-XXXXXX',
   `email` varchar(100) DEFAULT 'info@hgmproperties.com',
   `address` varchar(255) DEFAULT 'Kampala, Uganda',
-  `footer_message` text DEFAULT 'Thank you for your business!\nPlease visit us again',
+  `footer_message` text,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
