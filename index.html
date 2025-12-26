@@ -21,13 +21,17 @@
     <script type="module" crossorigin src="/assets/index-C8Gnj3qQ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BvrwU59C.css">
 
-    <!-- Pesapal Removal Patch -->
+    <!-- Direct CSS to hide Pesapal section -->
     <style>
-      /* Hide any Pesapal-related elements */
-      [class*="pesapal" i],
-      [id*="pesapal" i],
-      button:has-text("Pesapal"),
-      *:has-text("Pesapal") {
+      /* Hide the entire Pesapal Payment Gateway card */
+      .card h3:contains("PesaPal"),
+      .card h3:contains("Pesapal") {
+        display: none !important;
+      }
+
+      /* Hide parent card if it contains PesaPal text */
+      .card:has(h3:contains("PesaPal")),
+      .card:has(h3:contains("Pesapal")) {
         display: none !important;
       }
     </style>
@@ -50,160 +54,35 @@
       }
     </script>
 
-    <!-- Pesapal Removal Script -->
+    <!-- Simple JavaScript to remove Pesapal section after page loads -->
     <script>
-      // Aggressive Pesapal removal - targets all instances
-      function removePesapalReferences() {
-        // 1. Remove all elements containing "Pesapal" text
-        const allElements = document.querySelectorAll('*');
-        allElements.forEach(el => {
-          const text = el.textContent || '';
-
-          // If this is a settings card or section with Pesapal
-          if (text.includes('PesaPal') || text.includes('Pesapal')) {
-            // Check if it's a settings section (contains form inputs for API keys)
-            const hasInputs = el.querySelectorAll('input[type="text"], input[type="password"]');
-            if (hasInputs.length > 0 && text.toLowerCase().includes('api')) {
-              // This is the Pesapal configuration section - remove entire card
-              let cardParent = el;
-              while (cardParent && !cardParent.className?.includes('card') && cardParent.parentElement) {
-                cardParent = cardParent.parentElement;
-              }
-              if (cardParent && cardParent !== document.body) {
-                cardParent.style.display = 'none';
-                cardParent.remove();
-                return;
-              }
-            }
-
-            // If it's a heading or label
-            if (el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4' || el.tagName === 'LABEL') {
-              if (el.textContent.trim().toLowerCase().includes('pesapal')) {
-                // Find parent container and hide it
-                let container = el.parentElement;
-                while (container && container !== document.body) {
-                  if (container.className?.includes('card') ||
-                      container.className?.includes('section') ||
-                      container.className?.includes('panel')) {
-                    container.style.display = 'none';
-                    container.remove();
-                    break;
-                  }
-                  container = container.parentElement;
-                }
-              }
-            }
-          }
-        });
-
-        // 2. Replace Pesapal text in payment buttons
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(btn => {
-          if (btn.textContent.includes('Pesapal')) {
-            btn.textContent = btn.textContent
-              .replace(/Pay Card \(Pesapal\)/gi, 'PAY BY CARD')
-              .replace(/Mobile Money \(Pesapal\)/gi, 'MOBILE MONEY')
-              .replace(/\(Pesapal\)/gi, '')
-              .replace(/Pesapal/gi, '');
-          }
-        });
-
-        // 3. Remove Pesapal from select options
-        const options = document.querySelectorAll('option');
-        options.forEach(opt => {
-          if (opt.textContent.toLowerCase().includes('pesapal')) {
-            opt.remove();
-          }
-        });
-
-        // 4. Find and remove any form sections with Pesapal configuration
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-          const formText = form.textContent.toLowerCase();
-          if (formText.includes('pesapal') &&
-              (formText.includes('consumer key') ||
-               formText.includes('consumer secret') ||
-               formText.includes('api'))) {
-            let parent = form.parentElement;
-            while (parent && parent !== document.body) {
-              if (parent.className?.includes('card') || parent.tagName === 'DIV') {
-                parent.style.display = 'none';
-                parent.remove();
-                break;
-              }
-              parent = parent.parentElement;
-            }
-          }
-        });
-
-        // 5. Remove any divs that are solely about Pesapal settings
-        const divs = document.querySelectorAll('div');
-        divs.forEach(div => {
-          const text = div.textContent.toLowerCase();
-          const directText = Array.from(div.childNodes)
-            .filter(node => node.nodeType === 3)
-            .map(node => node.textContent.trim())
-            .join(' ');
-
-          if (text.includes('pesapal') && text.includes('configuration')) {
-            div.style.display = 'none';
-            div.remove();
-          }
-        });
-      }
-
-      // Run immediately when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', removePesapalReferences);
-      } else {
-        removePesapalReferences();
-      }
-
-      // Run after React mounts
-      const observer = new MutationObserver(() => {
-        if (document.querySelector('#root')?.children.length > 0) {
-          setTimeout(removePesapalReferences, 100);
-          setTimeout(removePesapalReferences, 500);
-          setTimeout(removePesapalReferences, 1500);
-          setTimeout(removePesapalReferences, 3000);
-
-          // Watch for future changes continuously
-          const contentObserver = new MutationObserver(() => {
-            removePesapalReferences();
-          });
-          contentObserver.observe(document.querySelector('#root'), {
-            childList: true,
-            subtree: true,
-            attributes: false,
-            characterData: false
-          });
-
-          observer.disconnect();
-        }
-      });
-
-      observer.observe(document.querySelector('#root'), {
-        childList: true
-      });
-
-      // Also run on load and periodically
       window.addEventListener('load', () => {
-        setTimeout(removePesapalReferences, 500);
-        setTimeout(removePesapalReferences, 2000);
+        setTimeout(() => {
+          // Find all h3 elements
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              // Find the parent card and hide it
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
+              }
+            }
+          });
+        }, 1500);
 
-        // Run every 2 seconds for the first 10 seconds to catch all renders
-        let count = 0;
-        const interval = setInterval(() => {
-          removePesapalReferences();
-          count++;
-          if (count >= 5) clearInterval(interval);
-        }, 2000);
-      });
-
-      // Run on hash change (tab switching)
-      window.addEventListener('hashchange', () => {
-        setTimeout(removePesapalReferences, 100);
-        setTimeout(removePesapalReferences, 500);
+        // Run again after navigation
+        setInterval(() => {
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
+              }
+            }
+          });
+        }, 3000);
       });
     </script>
   </body>
