@@ -92,6 +92,9 @@ switch ($method) {
             exit();
         }
 
+        // Ignore status field if sent by frontend (backwards compatibility)
+        // All items are active by default - status column removed
+
         $query = "UPDATE items SET
                   name = :name,
                   category = :category,
@@ -113,11 +116,26 @@ switch ($method) {
         $stmt->bindParam(':low_stock_alert', $data->low_stock_alert);
         $stmt->bindParam(':description', $data->description);
 
-        if ($stmt->execute()) {
-            echo json_encode(array("success" => true, "message" => "Item updated successfully"));
-        } else {
+        try {
+            if ($stmt->execute()) {
+                echo json_encode(array("success" => true, "message" => "Item updated successfully"));
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                error_log("Item update failed: " . print_r($errorInfo, true));
+                http_response_code(500);
+                echo json_encode(array(
+                    "success" => false,
+                    "message" => "Failed to update item",
+                    "error" => $errorInfo[2] // Include SQL error message for debugging
+                ));
+            }
+        } catch (PDOException $e) {
+            error_log("Item update exception: " . $e->getMessage());
             http_response_code(500);
-            echo json_encode(array("success" => false, "message" => "Failed to update item"));
+            echo json_encode(array(
+                "success" => false,
+                "message" => "Database error: " . $e->getMessage()
+            ));
         }
         break;
 
