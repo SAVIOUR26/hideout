@@ -93,7 +93,6 @@ if ($method === 'GET') {
         $lowStockQuery = "SELECT name, section, category, stock, low_stock_alert
                          FROM items
                          WHERE stock <= low_stock_alert
-                         AND status = 'active'
                          ORDER BY stock ASC
                          LIMIT 10";
         $lowStockStmt = $db->prepare($lowStockQuery);
