@@ -110,7 +110,44 @@ if ($method === 'GET') {
     $lowStockStmt->execute();
     $lowStock = $lowStockStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // All transactions with details
+    $transactionsQuery = "SELECT
+                         t.id,
+                         t.created_at,
+                         t.section,
+                         t.payment_method,
+                         t.total,
+                         t.customer_name,
+                         u.username as cashier
+                         FROM transactions t
+                         LEFT JOIN users u ON t.cashier_id = u.id
+                         $where
+                         ORDER BY t.created_at DESC
+                         LIMIT 1000";
+    $transactionsStmt = $db->prepare($transactionsQuery);
+    foreach ($params as $key => $value) {
+        $transactionsStmt->bindValue($key, $value);
+    }
+    $transactionsStmt->execute();
+    $transactions = $transactionsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get items for each transaction
+    foreach ($transactions as &$transaction) {
+        $itemsQuery = "SELECT
+                      ti.*,
+                      i.name as item_name,
+                      i.category
+                      FROM transaction_items ti
+                      LEFT JOIN items i ON ti.item_id = i.id
+                      WHERE ti.transaction_id = :transaction_id";
+        $itemsStmt = $db->prepare($itemsQuery);
+        $itemsStmt->bindValue(':transaction_id', $transaction['id']);
+        $itemsStmt->execute();
+        $transaction['items'] = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     echo json_encode(array(
+        'success' => true,
         'period' => array(
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -120,7 +157,8 @@ if ($method === 'GET') {
         'byPaymentMethod' => $byPaymentMethod,
         'bySection' => $bySection,
         'topItems' => $topItems,
-        'lowStock' => $lowStock
+        'lowStock' => $lowStock,
+        'transactions' => $transactions
     ));
 
 } else {
