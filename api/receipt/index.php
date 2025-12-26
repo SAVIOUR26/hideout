@@ -65,19 +65,23 @@ if ($method === 'GET') {
     $itemsStmt->execute();
     $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Build receipt data
+    // Build receipt data (matches print-preview.html format)
     $receiptData = array(
-        'business' => $business,
+        'business_name' => $business['name'],
+        'address' => $business['address'],
+        'phone' => $business['phone'],
+        'email' => $business['email'],
         'transaction' => array(
             'id' => $transaction['id'],
-            'date' => $transaction['created_at'],
-            'cashier' => $transaction['cashier_name'],
+            'created_at' => $transaction['created_at'],
+            'section' => $transaction['section'],
             'payment_method' => $transaction['payment_method'],
-            'customer_name' => $transaction['customer_name']
+            'customer_name' => $transaction['customer_name'],
+            'total' => $transaction['total']
         ),
+        'cashier_name' => $transaction['cashier_name'],
         'items' => $items,
-        'total' => $transaction['total'],
-        'footer' => $businessSettings ? $businessSettings['footer_message'] : 'Thank you for your business!'
+        'footer_message' => $businessSettings ? $businessSettings['footer_message'] : 'Thank you for your patronage!'
     );
 
     echo json_encode($receiptData);
