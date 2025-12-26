@@ -21,13 +21,17 @@
     <script type="module" crossorigin src="/assets/index-C8Gnj3qQ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BvrwU59C.css">
 
-    <!-- Safe CSS-based Pesapal hiding -->
+    <!-- Direct CSS to hide Pesapal section -->
     <style>
-      /* Hide Pesapal settings card in admin panel */
-      div:has(> h3:contains("PesaPal")),
-      div:has(> h2:contains("PesaPal")),
-      div:has(> h3:contains("Pesapal")),
-      div:has(> h2:contains("Pesapal")) {
+      /* Hide the entire Pesapal Payment Gateway card */
+      .card h3:contains("PesaPal"),
+      .card h3:contains("Pesapal") {
+        display: none !important;
+      }
+
+      /* Hide parent card if it contains PesaPal text */
+      .card:has(h3:contains("PesaPal")),
+      .card:has(h3:contains("Pesapal")) {
         display: none !important;
       }
     </style>
@@ -50,77 +54,36 @@
       }
     </script>
 
-    <!-- Minimal, safe Pesapal removal - runs AFTER React is stable -->
+    <!-- Simple JavaScript to remove Pesapal section after page loads -->
     <script>
-      // Safe cleanup function that doesn't break React
-      function hidePesapalSettings() {
-        try {
-          // Only hide, never remove elements to avoid breaking React
-          const allElements = document.querySelectorAll('h2, h3, h4');
-
-          allElements.forEach(heading => {
-            const text = heading.textContent || '';
-            if (text.includes('PesaPal') || text.includes('Pesapal')) {
-              // Find the parent card/container
-              let parent = heading.parentElement;
-              let depth = 0;
-              while (parent && depth < 10) {
-                const className = parent.className || '';
-                if (className.includes('card') ||
-                    className.includes('panel') ||
-                    className.includes('section')) {
-                  // Check if this is the settings panel with Pesapal config
-                  const parentText = parent.textContent.toLowerCase();
-                  if (parentText.includes('consumer') ||
-                      parentText.includes('api key') ||
-                      parentText.includes('environment')) {
-                    parent.style.display = 'none';
-                    break;
-                  }
-                }
-                parent = parent.parentElement;
-                depth++;
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          // Find all h3 elements
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              // Find the parent card and hide it
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
               }
             }
           });
+        }, 1500);
 
-          // Clean up payment button text (safe text replacement)
-          const buttons = document.querySelectorAll('button');
-          buttons.forEach(btn => {
-            if (btn.textContent && btn.textContent.includes('Pesapal')) {
-              const originalText = btn.textContent;
-              btn.textContent = originalText
-                .replace('(Pesapal)', '')
-                .replace('Pesapal', '')
-                .trim();
+        // Run again after navigation
+        setInterval(() => {
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
+              }
             }
           });
-        } catch (error) {
-          // Silently fail to avoid breaking the page
-          console.warn('Pesapal cleanup error:', error);
-        }
-      }
-
-      // Run only after everything is loaded and stable
-      window.addEventListener('load', () => {
-        // Wait for React to finish rendering
-        setTimeout(() => {
-          hidePesapalSettings();
-
-          // Run once more after a delay for late renders
-          setTimeout(hidePesapalSettings, 2000);
-        }, 1000);
+        }, 3000);
       });
-
-      // Run on navigation (when switching tabs)
-      let lastPath = '';
-      setInterval(() => {
-        const currentPath = window.location.hash;
-        if (currentPath !== lastPath) {
-          lastPath = currentPath;
-          setTimeout(hidePesapalSettings, 300);
-        }
-      }, 500);
     </script>
   </body>
 </html>
