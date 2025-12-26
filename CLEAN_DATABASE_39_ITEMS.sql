@@ -2,6 +2,7 @@
 -- CLEAN DATABASE IMPORT
 -- HGM POS System - Complete Database
 -- No status column - All items always active
+-- Handles foreign key constraints properly
 -- ========================================
 
 -- --------------------------------------------------------
@@ -29,8 +30,17 @@ CREATE TABLE IF NOT EXISTS `items` (
 -- Import 39 items - All active by default
 -- --------------------------------------------------------
 
--- Clear existing items first (optional - remove if you want to keep existing items)
-TRUNCATE TABLE `items`;
+-- Disable foreign key checks temporarily to clear old items
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Clear existing items
+DELETE FROM `items`;
+
+-- Reset auto increment
+ALTER TABLE `items` AUTO_INCREMENT = 1;
+
+-- Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- BAR SECTION - 19 items
 INSERT INTO `items` (`name`, `category`, `section`, `price`, `stock`, `low_stock_alert`) VALUES
