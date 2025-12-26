@@ -38,5 +38,49 @@
         });
       }
     </script>
+
+    <!-- Simple JavaScript to remove Pesapal section after page loads -->
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          // Find all h3 elements
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              // Find the parent card and hide it
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
+              }
+            }
+          });
+        }, 1500);
+
+        // Run again after navigation
+        setInterval(() => {
+          const headings = document.querySelectorAll('h3');
+          headings.forEach(h3 => {
+            if (h3.textContent.includes('PesaPal') || h3.textContent.includes('Pesapal')) {
+              let parent = h3.closest('.card, [class*="card"]');
+              if (parent) {
+                parent.style.display = 'none';
+              }
+            }
+          });
+        }, 3000);
+      });
+    </script>
+
+    <!-- Modern Checkout Interface Enhancement -->
+    <script src="/modern-checkout.js"></script>
+
+    <!-- Sales Dashboard Widget -->
+    <script src="/dashboard-widget.js"></script>
+
+    <!-- Receipt Fix - Ensures transaction_id is properly passed -->
+    <script src="/receipt-fix.js"></script>
+
+    <!-- Status Column Hide - Removes status column from UI -->
+    <script src="/status-column-hide.js"></script>
   </body>
 </html>
