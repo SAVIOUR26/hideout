@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt Print Preview - HGM POS</title>
+    <title>Receipt Print - HGM POS</title>
     <style>
         * {
             margin: 0;
@@ -12,166 +12,232 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: #f5f5f5;
+            font-family: 'Courier New', 'Consolas', monospace;
+            background: #ecf0f1;
             padding: 20px;
         }
 
         .preview-container {
-            max-width: 800px;
+            max-width: 400px;
             margin: 0 auto;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             overflow: hidden;
         }
 
         .preview-header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
         }
 
         .preview-header h1 {
             font-size: 24px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-weight: 700;
         }
 
+        .preview-header p {
+            opacity: 0.95;
+            font-size: 14px;
+        }
+
+        /* 80mm Thermal Printer Receipt */
         .receipt-paper {
-            width: 80mm;
-            margin: 20px auto;
+            width: 302px; /* 80mm = 302px at 96dpi */
+            margin: 0 auto;
             background: white;
-            padding: 20px;
+            padding: 0;
             font-size: 12px;
-            line-height: 1.5;
-            border: 1px solid #ddd;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            line-height: 1.4;
+        }
+
+        .receipt-content {
+            padding: 15px 10px;
         }
 
         .receipt-header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 12px;
         }
 
         .business-name {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .business-info {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #333;
         }
 
         .receipt-divider {
-            border-top: 2px dashed #333;
+            border-top: 1px dashed #333;
             margin: 10px 0;
         }
 
         .receipt-divider-solid {
-            border-top: 2px solid #333;
+            border-top: 2px solid #000;
+            margin: 10px 0;
+        }
+
+        .receipt-divider-double {
+            border-top: 3px double #000;
             margin: 10px 0;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            margin: 3px 0;
+            margin: 4px 0;
+            font-size: 11px;
         }
 
-        .items-table {
-            width: 100%;
-            margin: 10px 0;
+        .info-row .label {
+            font-weight: normal;
+            color: #555;
+        }
+
+        .info-row .value {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 13px;
+            margin: 12px 0 6px 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .items-header {
             font-weight: bold;
-            border-bottom: 1px dashed #333;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
+            font-size: 11px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
         }
 
         .item-row {
-            margin: 5px 0;
+            margin: 6px 0;
+            font-size: 11px;
         }
 
         .item-name {
             font-weight: bold;
+            margin-bottom: 2px;
         }
 
         .item-details {
-            text-align: right;
-            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #444;
+        }
+
+        .receipt-total-section {
+            margin-top: 12px;
+            border-top: 2px solid #000;
+            padding-top: 8px;
+        }
+
+        .subtotal-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            font-size: 12px;
         }
 
         .receipt-total {
             text-align: center;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            margin: 15px 0;
-            padding: 10px;
-            background: #f8f9fa;
+            margin: 12px 0;
+            padding: 12px;
+            background: #000;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+
+        .payment-info {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 8px;
+            border: 2px solid #000;
         }
 
         .receipt-footer {
             text-align: center;
             margin-top: 15px;
+            font-size: 10px;
+            padding-top: 10px;
+            border-top: 2px double #000;
+        }
+
+        .footer-message {
+            font-style: italic;
+            margin: 8px 0;
             font-size: 11px;
         }
 
-        .qr-code {
+        .footer-branding {
+            margin-top: 12px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .barcode {
             text-align: center;
-            margin: 15px 0;
+            margin: 12px 0;
+            font-family: 'Libre Barcode 128', monospace;
+            font-size: 40px;
+            letter-spacing: 0;
         }
 
-        .qr-code img {
-            width: 150px;
-            height: 150px;
-        }
-
+        /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             padding: 20px;
             background: #f8f9fa;
         }
 
         .btn {
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: bold;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
         }
 
         .btn-primary {
-            background: #3498db;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        .btn-warning {
-            background: #f39c12;
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .btn-secondary {
@@ -189,11 +255,14 @@
         }
 
         .status-message {
-            padding: 15px;
+            padding: 12px;
             margin: 10px 20px;
-            border-radius: 4px;
+            border-radius: 6px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 13px;
+            display: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
         }
 
         .status-success {
@@ -214,6 +283,7 @@
             border: 1px solid #bee5eb;
         }
 
+        /* Print Styles */
         @media print {
             body {
                 background: white;
@@ -223,20 +293,23 @@
             .preview-container {
                 box-shadow: none;
                 border-radius: 0;
+                max-width: none;
             }
 
             .preview-header,
             .action-buttons,
             .status-message {
-                display: none;
+                display: none !important;
             }
 
             .receipt-paper {
                 width: 80mm;
                 margin: 0;
-                border: none;
-                box-shadow: none;
-                page-break-after: auto;
+                padding: 0;
+            }
+
+            .receipt-content {
+                padding: 5mm;
             }
 
             @page {
@@ -249,68 +322,101 @@
 <body>
     <div class="preview-container">
         <div class="preview-header">
-            <h1>📋 Receipt Print Preview</h1>
-            <p>Review receipt before printing</p>
+            <h1>📋 Receipt</h1>
+            <p>HGM POS System</p>
         </div>
 
-        <div id="status-message"></div>
+        <div id="status-message" class="status-message"></div>
 
         <div class="receipt-paper" id="receipt-content">
-            <!-- Receipt content will be loaded here -->
-            <div class="receipt-header">
-                <div class="business-name" id="business-name">Loading...</div>
-                <div id="business-phone"></div>
-                <div id="business-email"></div>
-                <div id="business-address"></div>
-            </div>
-
-            <div class="receipt-divider-solid"></div>
-
-            <div id="transaction-info">
-                <!-- Transaction info -->
-            </div>
-
-            <div class="receipt-divider"></div>
-
-            <div class="items-table">
-                <div class="items-header">
-                    <div class="info-row">
-                        <span>ITEM</span>
-                        <span>QTY  PRICE   TOTAL</span>
+            <div class="receipt-content">
+                <!-- Business Header -->
+                <div class="receipt-header">
+                    <div class="business-name" id="business-name">HGM PROPERTIES</div>
+                    <div class="business-info">
+                        <div id="business-phone">Tel: +256 XXX XXXXXX</div>
+                        <div id="business-email">info@hgmproperties.com</div>
+                        <div id="business-address">Kampala, Uganda</div>
                     </div>
                 </div>
-                <div id="items-list">
-                    <!-- Items -->
+
+                <!-- Transaction Info -->
+                <div id="transaction-info">
+                    <div class="info-row">
+                        <span class="label">Receipt #:</span>
+                        <span class="value" id="receipt-number">---</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Date:</span>
+                        <span class="value" id="receipt-date">---</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Cashier:</span>
+                        <span class="value" id="cashier-name">---</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Section:</span>
+                        <span class="value" id="section-name">---</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="receipt-divider"></div>
+                <div class="receipt-divider-solid"></div>
 
-            <div class="receipt-total" id="total-amount">
-                TOTAL: UGX 0
-            </div>
+                <!-- Items Section -->
+                <div class="section-title">ITEMS</div>
+                <div class="items-header">
+                    <span>ITEM</span>
+                    <span>TOTAL</span>
+                </div>
+                <div id="items-list">
+                    <!-- Items will be loaded here -->
+                </div>
 
-            <div class="receipt-divider-solid"></div>
+                <div class="receipt-divider"></div>
 
-            <div class="qr-code">
-                <canvas id="qr-canvas" width="150" height="150"></canvas>
-            </div>
+                <!-- Total Section -->
+                <div class="receipt-total-section">
+                    <div class="subtotal-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal-amount">UGX 0</span>
+                    </div>
+                    <div class="subtotal-row">
+                        <span>Tax:</span>
+                        <span id="tax-amount">UGX 0</span>
+                    </div>
+                </div>
 
-            <div class="receipt-footer">
-                <div id="footer-message"></div>
-                <div style="margin-top: 10px;">Powered by HGM POS v2.0</div>
+                <div class="receipt-total" id="total-amount">
+                    UGX 0
+                </div>
+
+                <!-- Payment Method -->
+                <div class="payment-info" id="payment-method">
+                    PAID: CASH
+                </div>
+
+                <div class="receipt-divider-double"></div>
+
+                <!-- Barcode -->
+                <div class="barcode" id="barcode">
+                    *<span id="barcode-value">000000</span>*
+                </div>
+
+                <!-- Footer -->
+                <div class="receipt-footer">
+                    <div class="footer-message" id="footer-message">
+                        Thank you for your patronage!
+                    </div>
+                    <div class="footer-branding">
+                        Powered by HGM POS v2.0
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="action-buttons">
-            <button class="btn btn-primary" onclick="printBrowser()">
-                🖨️ Print (Browser)
-            </button>
-            <button class="btn btn-success" id="btn-usb-print" onclick="printUSB()">
-                🔌 Print (USB Thermal)
-            </button>
-            <button class="btn btn-warning" onclick="openCashDrawer()">
-                💰 Open Cash Drawer
+            <button class="btn btn-primary" onclick="printReceipt()" id="print-btn">
+                🖨️ Print Receipt
             </button>
             <button class="btn btn-secondary" onclick="window.close()">
                 ✖️ Close
@@ -318,36 +424,11 @@
         </div>
     </div>
 
-    <!-- Load USB Thermal Printer Library -->
-    <script src="/js/usb-thermal-printer.js"></script>
-
-    <!-- QR Code Generator (lightweight alternative) -->
     <script>
-        // Simple QR Code generator for preview
-        // Production: Use qrcode.js library for better quality
-        function generateQRCode(text) {
-            const canvas = document.getElementById('qr-canvas');
-            const ctx = canvas.getContext('2d');
-
-            // Simple placeholder - replace with actual QR library
-            ctx.fillStyle = '#000';
-            ctx.font = '12px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('QR CODE', 75, 70);
-            ctx.fillText(text, 75, 90);
-
-            // TODO: Use qrcode.js or similar library
-            // new QRCode(canvas, { text: text, width: 150, height: 150 });
-        }
-    </script>
-
-    <script>
-        // Global printer instance
-        let printer = null;
-
         // Get transaction ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const transactionId = urlParams.get('id');
+        const autoPrint = false; // DISABLED - User must click Print button
 
         // Load receipt data
         async function loadReceipt() {
@@ -379,6 +460,13 @@
                 const data = await response.json();
                 displayReceipt(data);
 
+                // Auto-print if enabled
+                if (autoPrint) {
+                    setTimeout(() => {
+                        printReceipt();
+                    }, 500); // Small delay to ensure receipt is rendered
+                }
+
             } catch (error) {
                 console.error('Error loading receipt:', error);
                 showStatus(`Error: ${error.message}`, 'error');
@@ -388,20 +476,16 @@
         // Display receipt data
         function displayReceipt(data) {
             // Business info
-            document.getElementById('business-name').textContent = data.business_name;
-            document.getElementById('business-phone').textContent = data.phone;
-            document.getElementById('business-email').textContent = data.email;
-            document.getElementById('business-address').textContent = data.address;
+            document.getElementById('business-name').textContent = data.business_name || 'HGM PROPERTIES';
+            document.getElementById('business-phone').textContent = data.phone || 'Tel: +256 XXX XXXXXX';
+            document.getElementById('business-email').textContent = data.email || 'info@hgmproperties.com';
+            document.getElementById('business-address').textContent = data.address || 'Kampala, Uganda';
 
             // Transaction info
-            const transactionInfo = document.getElementById('transaction-info');
-            transactionInfo.innerHTML = `
-                <div class="info-row"><span>Receipt #:</span><span>${data.transaction.id}</span></div>
-                <div class="info-row"><span>Date:</span><span>${new Date(data.transaction.created_at).toLocaleString()}</span></div>
-                <div class="info-row"><span>Cashier:</span><span>${data.cashier_name}</span></div>
-                <div class="info-row"><span>Section:</span><span>${data.transaction.section.toUpperCase()}</span></div>
-                <div class="info-row"><span>Payment:</span><span>${formatPaymentMethod(data.transaction.payment_method)}</span></div>
-            `;
+            document.getElementById('receipt-number').textContent = String(data.transaction.id).padStart(6, '0');
+            document.getElementById('receipt-date').textContent = new Date(data.transaction.created_at).toLocaleString();
+            document.getElementById('cashier-name').textContent = data.cashier_name;
+            document.getElementById('section-name').textContent = data.transaction.section.toUpperCase();
 
             // Items
             const itemsList = document.getElementById('items-list');
@@ -412,21 +496,33 @@
                 itemDiv.className = 'item-row';
                 itemDiv.innerHTML = `
                     <div class="item-name">${item.item_name}</div>
-                    <div class="item-details">${item.quantity} x ${formatMoney(item.price)} = ${formatMoney(item.total)}</div>
+                    <div class="item-details">
+                        <span>${item.quantity} x ${formatMoney(item.price)}</span>
+                        <span><strong>${formatMoney(item.total)}</strong></span>
+                    </div>
                 `;
                 itemsList.appendChild(itemDiv);
             });
 
-            // Total
-            document.getElementById('total-amount').textContent = `TOTAL: UGX ${formatMoney(data.transaction.total)}`;
+            // Totals
+            const total = parseFloat(data.transaction.total);
+            const tax = 0; // Add tax calculation if needed
+            const subtotal = total - tax;
+
+            document.getElementById('subtotal-amount').textContent = `UGX ${formatMoney(subtotal)}`;
+            document.getElementById('tax-amount').textContent = `UGX ${formatMoney(tax)}`;
+            document.getElementById('total-amount').textContent = `UGX ${formatMoney(total)}`;
+
+            // Payment method
+            document.getElementById('payment-method').textContent = `PAID: ${formatPaymentMethod(data.transaction.payment_method)}`;
+
+            // Barcode
+            document.getElementById('barcode-value').textContent = String(data.transaction.id).padStart(6, '0');
 
             // Footer
-            document.getElementById('footer-message').textContent = data.footer_message;
+            document.getElementById('footer-message').textContent = data.footer_message || 'Thank you for your patronage!';
 
-            // Generate QR code
-            generateQRCode(`RECEIPT:${data.transaction.id}:${data.transaction.total}`);
-
-            // Store data for USB printing
+            // Store data globally
             window.receiptData = data;
         }
 
@@ -434,8 +530,8 @@
         function formatPaymentMethod(method) {
             const methods = {
                 'cash': 'CASH',
-                'card': 'CARD (Terminal)',
-                'mobile_money': 'MERCHANT (Mobile)'
+                'card': 'CARD',
+                'mobile_money': 'MOBILE MONEY'
             };
             return methods[method] || method.toUpperCase();
         }
@@ -459,120 +555,24 @@
             }
         }
 
-        // Print using browser print dialog
-        function printBrowser() {
+        // Print receipt using browser print dialog
+        function printReceipt() {
             window.print();
-        }
-
-        // Print using USB thermal printer
-        async function printUSB() {
-            if (!window.receiptData) {
-                showStatus('Receipt data not loaded', 'error');
-                return;
-            }
-
-            if (!USBThermalPrinter.isSupported()) {
-                showStatus('USB printing requires Chrome, Edge, or Opera browser', 'error');
-                return;
-            }
-
-            try {
-                const btnUSB = document.getElementById('btn-usb-print');
-                btnUSB.disabled = true;
-                btnUSB.textContent = '🔌 Connecting...';
-
-                // Connect if not already connected
-                if (!printer || !printer.connected) {
-                    printer = new USBThermalPrinter();
-                    showStatus('Select your USB thermal printer...', 'info');
-                    await printer.connect();
-                    showStatus('✅ Connected to printer', 'success');
-                }
-
-                btnUSB.textContent = '🖨️ Printing...';
-                showStatus('Printing receipt...', 'info');
-
-                // Prepare receipt data
-                const data = window.receiptData;
-                const receiptData = {
-                    businessName: data.business_name,
-                    phone: data.phone,
-                    email: data.email,
-                    address: data.address,
-                    transactionId: data.transaction.id,
-                    date: new Date(data.transaction.created_at).toLocaleString(),
-                    cashier: data.cashier_name,
-                    section: data.transaction.section,
-                    paymentMethod: formatPaymentMethod(data.transaction.payment_method),
-                    items: data.items.map(item => ({
-                        name: item.item_name,
-                        quantity: item.quantity,
-                        price: item.price,
-                        total: item.total
-                    })),
-                    total: formatMoney(data.transaction.total),
-                    footerMessage: data.footer_message
-                };
-
-                // Print receipt
-                await printer.printReceipt(receiptData);
-
-                showStatus('✅ Receipt printed successfully!', 'success');
-
-                // Open cash drawer for CASH payments
-                if (data.transaction.payment_method === 'cash') {
-                    setTimeout(async () => {
-                        showStatus('💰 Opening cash drawer...', 'info');
-                        await printer.openCashDrawer();
-                        showStatus('✅ Cash drawer opened', 'success');
-                    }, 1000);
-                }
-
-                btnUSB.textContent = '🔌 Print (USB Thermal)';
-                btnUSB.disabled = false;
-
-            } catch (error) {
-                console.error('USB Print error:', error);
-                showStatus(`Error: ${error.message}`, 'error');
-
-                const btnUSB = document.getElementById('btn-usb-print');
-                btnUSB.textContent = '🔌 Print (USB Thermal)';
-                btnUSB.disabled = false;
-            }
-        }
-
-        // Open cash drawer manually
-        async function openCashDrawer() {
-            if (!USBThermalPrinter.isSupported()) {
-                showStatus('Cash drawer control requires Chrome, Edge, or Opera browser', 'error');
-                return;
-            }
-
-            try {
-                // Connect if not already connected
-                if (!printer || !printer.connected) {
-                    printer = new USBThermalPrinter();
-                    showStatus('Select your USB thermal printer...', 'info');
-                    await printer.connect();
-                }
-
-                showStatus('💰 Opening cash drawer...', 'info');
-                await printer.openCashDrawer();
-                showStatus('✅ Cash drawer opened!', 'success');
-
-            } catch (error) {
-                console.error('Cash drawer error:', error);
-                showStatus(`Error: ${error.message}`, 'error');
-            }
         }
 
         // Load receipt on page load
         window.addEventListener('DOMContentLoaded', loadReceipt);
 
-        // Auto-close printer connection when window closes
-        window.addEventListener('beforeunload', async () => {
-            if (printer && printer.connected) {
-                await printer.disconnect();
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+P or Cmd+P to print
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                printReceipt();
+            }
+            // ESC to close
+            if (e.key === 'Escape') {
+                window.close();
             }
         });
     </script>

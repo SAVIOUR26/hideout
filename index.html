@@ -20,6 +20,21 @@
     <meta name="apple-mobile-web-app-title" content="HGM POS" />
     <script type="module" crossorigin src="/assets/index-C8Gnj3qQ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BvrwU59C.css">
+
+    <!-- Direct CSS to hide Pesapal section -->
+    <style>
+      /* Hide the entire Pesapal Payment Gateway card */
+      .card h3:contains("PesaPal"),
+      .card h3:contains("Pesapal") {
+        display: none !important;
+      }
+
+      /* Hide parent card if it contains PesaPal text */
+      .card:has(h3:contains("PesaPal")),
+      .card:has(h3:contains("Pesapal")) {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
