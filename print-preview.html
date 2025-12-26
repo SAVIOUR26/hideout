@@ -428,7 +428,7 @@
         // Get transaction ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const transactionId = urlParams.get('id');
-        const autoPrint = urlParams.get('autoprint') !== 'false'; // Auto-print by default
+        const autoPrint = false; // DISABLED - User must click Print button
 
         // Load receipt data
         async function loadReceipt() {
