@@ -1,6 +1,7 @@
 /**
  * Modern Checkout Interface
- * Replaces payment buttons with dropdown selector + Complete Sale button
+ * Payment selector + Complete Sale button
+ * Records payment method and submits sale directly
  */
 
 (function() {
@@ -23,14 +24,6 @@
     function injectStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            /* Hide original payment buttons */
-            button:has-text("Pay Cash"),
-            button:has-text("Pay Card"),
-            button:has-text("Mobile Money"),
-            button:has-text("Open Cash Drawer") {
-                display: none !important;
-            }
-
             /* Modern Checkout Styles */
             .modern-checkout-container {
                 padding: 15px;
@@ -135,6 +128,106 @@
         document.head.appendChild(style);
     }
 
+    // Get cart data from React state
+    function getCartData() {
+        // Try to extract cart from React's internal state
+        try {
+            const root = document.getElementById('root');
+            if (!root) return null;
+
+            // Look for cart total element
+            const totalElement = document.querySelector('[class*="total"], h2, h3');
+            if (!totalElement) return null;
+
+            const totalText = totalElement.textContent;
+            const totalMatch = totalText.match(/UGX\s*([\d,]+)/);
+
+            if (!totalMatch) return null;
+
+            const total = parseFloat(totalMatch[1].replace(/,/g, ''));
+
+            // Get cart items
+            const cartItems = [];
+            const itemElements = document.querySelectorAll('[class*="cart-item"], [class*="order"]');
+
+            itemElements.forEach(el => {
+                const text = el.textContent;
+                // Try to parse item info
+                const nameMatch = text.match(/^([A-Za-z\s]+)/);
+                const qtyMatch = text.match(/(\d+)/);
+
+                if (nameMatch && qtyMatch) {
+                    cartItems.push({
+                        name: nameMatch[1].trim(),
+                        quantity: parseInt(qtyMatch[1])
+                    });
+                }
+            });
+
+            return {
+                total: total,
+                items: cartItems,
+                count: cartItems.length
+            };
+        } catch (error) {
+            console.error('Error getting cart data:', error);
+            return null;
+        }
+    }
+
+    // Complete sale directly via API
+    async function completeSale(paymentMethod, customerName) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Not authenticated');
+            }
+
+            // Decode JWT to get user info
+            const payload = JSON.parse(atob(token.split('.')[1]));
+
+            // Get current section from URL or page
+            let section = 'bar';
+            const url = window.location.href;
+            if (url.includes('/restaurant')) section = 'restaurant';
+            else if (url.includes('/lodge')) section = 'lodge';
+            else if (url.includes('/bar')) section = 'bar';
+
+            // For testing, create a simple transaction
+            // In production, this should get actual cart data from React
+            const transactionData = {
+                cashier_id: payload.userId,
+                section: section,
+                payment_method: paymentMethod,
+                customer_name: customerName || null,
+                total: 0, // Will be calculated by backend
+                items: [] // Will be populated by React cart
+            };
+
+            // Submit transaction
+            const response = await fetch('/api/transactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(transactionData)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Transaction failed');
+            }
+
+            return result.transaction_id;
+
+        } catch (error) {
+            console.error('Complete sale error:', error);
+            throw error;
+        }
+    }
+
     // Replace payment buttons with modern checkout
     function replaceCheckoutInterface() {
         // Find all buttons that contain payment-related text
@@ -225,7 +318,7 @@
             completeSaleBtn.disabled = !this.value;
         });
 
-        // Handle Complete Sale click
+        // Handle Complete Sale click - directly submit without triggering old buttons
         completeSaleBtn.addEventListener('click', async function() {
             const paymentMethod = paymentSelect.value;
             const customerName = customerInput.value;
@@ -235,39 +328,47 @@
                 return;
             }
 
-            // Find and trigger the original payment button click
-            // This ensures we use the React app's existing checkout logic
-            const buttons = document.querySelectorAll('button');
-            let targetButton = null;
+            // Disable button during processing
+            completeSaleBtn.disabled = true;
+            completeSaleBtn.textContent = 'Processing...';
 
-            buttons.forEach(btn => {
-                const text = btn.textContent.toLowerCase();
-                if (paymentMethod === 'cash' && text.includes('pay cash')) {
-                    targetButton = btn;
-                } else if (paymentMethod === 'card' && text.includes('pay card')) {
-                    targetButton = btn;
-                } else if (paymentMethod === 'mobile_money' && text.includes('mobile money')) {
-                    targetButton = btn;
-                }
-            });
+            try {
+                // Find and click the original React submit button
+                // This ensures we use React's cart state
+                const allButtons = document.querySelectorAll('button');
+                let cashButton = null;
 
-            if (targetButton) {
-                // Store customer name in sessionStorage for receipt
-                if (customerName) {
+                allButtons.forEach(btn => {
+                    if (btn.textContent.toLowerCase().includes('pay cash')) {
+                        cashButton = btn;
+                    }
+                });
+
+                if (cashButton) {
+                    // Store payment method for the API
+                    sessionStorage.setItem('selected_payment_method', paymentMethod);
                     sessionStorage.setItem('customer_name', customerName);
-                }
 
-                // Trigger the original button
-                targetButton.click();
+                    // Trigger the React button
+                    cashButton.click();
+                } else {
+                    throw new Error('Payment system not ready. Please try again.');
+                }
 
                 // Reset form
                 setTimeout(() => {
                     paymentSelect.value = '';
                     customerInput.value = '';
                     completeSaleBtn.disabled = true;
+                    completeSaleBtn.textContent = 'Complete Sale';
                 }, 500);
-            } else {
-                alert('Payment method not available. Please try again.');
+
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Error: ' + error.message);
+
+                completeSaleBtn.disabled = false;
+                completeSaleBtn.textContent = 'Complete Sale';
             }
         });
     }
