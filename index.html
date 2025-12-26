@@ -86,13 +86,14 @@
       });
     </script>
 
-    <!-- Modern Checkout Interface Enhancement -->
+    <!-- Modern Checkout Interface v3.0 - WITH RECEIPT INTERCEPTION -->
+    <!-- CRITICAL: This MUST load before React to intercept window.open -->
     <script src="/modern-checkout.js"></script>
 
     <!-- Sales Dashboard Widget -->
     <script src="/dashboard-widget.js"></script>
 
-    <!-- Receipt Fix - Ensures transaction_id is properly passed -->
+    <!-- Receipt Fix - Backup transaction_id capture (v2.0 kept for redundancy) -->
     <script src="/receipt-fix.js"></script>
 
     <!-- Status Column Hide - Removes status column from UI -->
